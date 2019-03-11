@@ -4,19 +4,7 @@ Package allows creation of Rabbitmq Actors.
 
 # Usage
 
-```
-package main
-
-import (
-	"encoding/json"
-	"fmt"
-
-	"go-actors/actor"
-)
-
-type Message struct {
-	Message string
-}
+```go
 
 func main() {
 	system, err := actor.System(actor.RabbitmqConfig{"amqp://localhost"})
