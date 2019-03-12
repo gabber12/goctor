@@ -10,6 +10,8 @@ import (
 type RabbitmqConfig struct {
 	ConnString string
 }
+
+//ActorSystem is responsible to manage and relay messages to actors
 type ActorSystem struct {
 	actors         map[string]*Actor
 	connection     *amqp.Connection
@@ -17,6 +19,7 @@ type ActorSystem struct {
 	started        bool
 }
 
+// System creates a new ActorSystem
 func System(config RabbitmqConfig) (*ActorSystem, error) {
 	conn, err := amqp.Dial(config.ConnString)
 	if err != nil {
@@ -26,6 +29,7 @@ func System(config RabbitmqConfig) (*ActorSystem, error) {
 	return &ActorSystem{rabbitmqConfig: config, connection: conn, actors: make(map[string]*Actor), started: false}, nil
 }
 
+// Register adds new Actor to the system
 func (as *ActorSystem) Register(config ActorConfig, handleFunc HandlerFunc) *Actor {
 	publishChannel, err := as.connection.Channel()
 	if err != nil {
@@ -46,6 +50,7 @@ func (as *ActorSystem) Register(config ActorConfig, handleFunc HandlerFunc) *Act
 	return &actor
 }
 
+//SendMessage routes messages to actor by name
 func (as *ActorSystem) SendMessage(name string, message []byte) error {
 	if !as.started {
 		return fmt.Errorf("Actor System not initialized")
@@ -56,6 +61,7 @@ func (as *ActorSystem) SendMessage(name string, message []byte) error {
 	return fmt.Errorf("No Actor with name %s registered", name)
 }
 
+//Init starts all actors in the system
 func (as *ActorSystem) Init() {
 	as.started = true
 	for _, v := range as.actors {
@@ -63,6 +69,7 @@ func (as *ActorSystem) Init() {
 	}
 }
 
+//Stop cleans up all actors relenquishing all resources
 func (as *ActorSystem) Stop() {
 	as.started = false
 	for _, v := range as.actors {

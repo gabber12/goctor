@@ -7,12 +7,14 @@ import (
 	"github.com/streadway/amqp"
 )
 
+//ActorHandler holds a rabbitmq channel to receive messages
 type ActorHandler struct {
 	name             string
 	subscribeChannel *amqp.Channel
 	handler          HandlerFunc
 }
 
+//Start starts basic consume on the rabbitmq channel
 func (h *ActorHandler) Start() {
 	shovel, err := h.subscribeChannel.Consume(h.name, h.name, false, false, false, false, nil)
 	if err != nil {
